@@ -1,0 +1,19 @@
+Package: twoe
+Version: 1.1
+Date: 2018-02-08
+Type: Package
+Title: Estimating tree species demography from plot inventories
+Imports: coda
+Authors@R: c(person("Ghislain","Vieilledent",
+  role=c("aut","cre"),email="ghislain.vieilledent@cirad.fr",
+  comment=c(ORCID="0000-0002-1685-4997")))
+Maintainer: Ghislain Vieilledent <ghislain.vieilledent@cirad.fr>
+Description: twoe (2e) aims at estimating the demographic parameters of tropical tree
+    species from permanent forest plot data. It includes functions to estimate growth,
+    mortality and recruitment of tree species. Species are treated as random effects
+    which allow estimating parameters for rare species.
+License: GPL-3 | file LICENSE
+URL: http://twoe.sourceforge.net, https://github.com/ghislainv/twoe
+BugReports: https://github.com/ghislainv/twoe/issues
+LazyLoad: yes
+Encoding: UTF-8

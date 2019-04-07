@@ -1,0 +1,25 @@
+useDynLib(twoe, .registration=TRUE)
+import(coda)
+import(stats)
+import(utils)
+importFrom("grDevices", "dev.off", "pdf")
+importFrom("graphics", "axis", "lines", "mtext", "par", "plot", "points", "text")
+export(dinvgamma,
+       diwish,
+       dwish,
+       entry_data,
+       entry_growth,
+       entry_growth_gibbs,
+       entry_ngrowth_gibbs,
+       entry_mortality,
+       entry_mortality_gibbs,
+       entry_recruitment,
+       entry_recruitment_gibbs,
+       exit_simu,
+       inv_logit,
+       logit,
+       rinvgamma,
+       riwish,
+       rwish,
+       surface_comp_index)
+
