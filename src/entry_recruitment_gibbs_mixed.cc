@@ -74,7 +74,7 @@ extern "C"{
 	const double *s1_V, const double *s2_V,
 	// Diagnostic
 	double *Deviance,
-	double *lambda_pred, // Annual recruitment rate
+	double *log_lambda_pred, // log(Annual recruitment rate)
 	// Seeds
 	const int *seed,
 	// Verbose
@@ -181,8 +181,8 @@ extern "C"{
 	for (int k=0;k<NGROUP;k++) {
 	    log_lambdak_run[k] = Matrix<double>(nobsk[k],1);
 	    for (int m=0; m<nobsk[k]; m++) {
-		log_lambdak_run[k](m)=log(lambda_pred[posk_arr[k][m]]);
-		lambda_pred[posk_arr[k][m]]=0; // We reinitialize lambda_pred to zero to compute mean of MCMC
+		log_lambdak_run[k](m)=log_lambda_pred[posk_arr[k][m]];
+		log_lambda_pred[posk_arr[k][m]]=0; // We reinitialize lambda_pred to zero to compute mean of MCMC
 	    }
 	}
 	double Deviance_run=Deviance[0];
@@ -370,7 +370,7 @@ extern "C"{
 	    	    for (int m=0; m<nobsk[k]; m++) {
 	    		int w=posk_arr[k][m];
 			Matrix<double> log_lambda_hat=Xk_arr[k](m,_)*beta_run+Wk_arr[k](m,_)*bk_run[k];
-	    		lambda_pred[w]+=exp(log_lambda_hat(0)+0.5*V_run)/(NSAMP); // We compute the mean of NSAMP values
+	    		log_lambda_pred[w]+=log_lambda_hat(0)/NSAMP; // We compute the mean of NSAMP values
 	    	    }
 	    	}
 	    }

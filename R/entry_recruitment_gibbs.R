@@ -97,7 +97,7 @@ entry_recruitment_gibbs <- function (fixed, random, group, interval=1, area=1, d
     #========
     beta_vect <- rep(c(beta.start),each=nsamp)
     V <- rep(sigma2.start,nsamp)
-    lambda_pred <- rep(0.5,nobs)
+    log_lambda_pred <- rep(0,nobs)
     Deviance <- rep(0,nsamp)
 
     #========
@@ -120,7 +120,7 @@ entry_recruitment_gibbs <- function (fixed, random, group, interval=1, area=1, d
                  s1_V=as.double(s1), s2_V=as.double(s2),
                  #= Diagnostic
                  Deviance.nonconst=as.double(Deviance),
-                 lambda_pred.nonconst=as.double(lambda_pred), ## Predictive posterior mean
+                 log_lambda_pred.nonconst=as.double(log_lambda_pred), ## Predictive posterior mean
                  #= Seeds
                  seed=as.integer(seed), 
                  #= Verbose
@@ -144,7 +144,7 @@ entry_recruitment_gibbs <- function (fixed, random, group, interval=1, area=1, d
     MCMC <- mcmc(Matrix,start=nburn+1,end=ngibbs,thin=nthin)
   
     #= Output
-    return (list(mcmc=MCMC,lambda.pred=Sample[[17]]))
+    return (list(mcmc=MCMC, log_lambda_pred=Sample[[17]]))
   }
 
   #= Mixed effects model
@@ -218,7 +218,7 @@ entry_recruitment_gibbs <- function (fixed, random, group, interval=1, area=1, d
     Vb_vect <- rep(c(Vb.start),each=nsamp)
     b_vect <- rep(0,nq*ngroup*nsamp)
     V <- rep(sigma2.start,nsamp)
-    lambda_pred <- rep(0.5,nobs)
+    log_lambda_pred <- rep(0,nobs)
     Deviance <- rep(0,nsamp)
 
     #========
@@ -246,7 +246,7 @@ entry_recruitment_gibbs <- function (fixed, random, group, interval=1, area=1, d
                  s1_V=as.double(s1), s2_V=as.double(s2),
                  #= Diagnostic
                  Deviance.nonconst=as.double(Deviance),
-                 lambda_pred.nonconst=as.double(lambda_pred), ## Predictive posterior mean
+                 log_lambda_pred.nonconst=as.double(log_lambda_pred), ## Predictive posterior mean
                  #= Seeds
                  seed=as.integer(seed), 
                  #= Verbose
@@ -273,7 +273,7 @@ entry_recruitment_gibbs <- function (fixed, random, group, interval=1, area=1, d
     MCMC <- mcmc(Matrix,start=nburn+1,end=ngibbs,thin=nthin)
   
     #= Output
-    return (list(mcmc=MCMC,lambda.pred=Sample[[25]]))
+    return (list(mcmc=MCMC, log_lambda_pred=Sample[[25]]))
   }
 }
 

@@ -124,7 +124,7 @@ delta=0.001, FixOD=0, ...)}
   
   The model takes the following form:
 
-  \deqn{y_i \sim \mathcal{B}ernoulli(\theta_i)}{y_i ~ Bernoulli(theta_i')}
+  \deqn{y_i \sim \mathcal{B}ernoulli(\theta_i')}{y_i ~ Bernoulli(theta_i')}
 
   With \eqn{\theta_i' = 1-(1-\theta_i)^{I_i}}{theta_i' =
   1-(1-theta_i)^I_i}, where \eqn{I_i} stands for the time interval

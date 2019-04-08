@@ -176,11 +176,7 @@ R, nu=0.001, delta=0.001, FixOD=0, ...)}
     \eqn{D=-2\log(\prod_i P(y_i|\lambda_i))}{%
       D=-2log(prod_i P(y_i|lambda_i))}, is also provided.}
   
-  \item{lambda.pred}{Predictive posterior mean for the exponential of
-    the latent variables. The approximation of Diggle et
-    al. (2004) is used to marginalized with respect to over-dispersion terms:
-    \deqn{E[\lambda_i|\beta,b_i,\sigma^2]=\phi^{-1}((X_i
-      \beta+W_i b_i)+0.5 \sigma^2)}{%
+  \item{log_lambda_pred}{Predictive posterior mean for the latent variables log(lambda). The approximation of Diggle et al. (2004) is needed to marginalized with respect to over-dispersion terms: \deqn{E[\lambda_i|\beta,b_i,\sigma^2]=\phi^{-1}((X_i \beta+W_i b_i)+0.5 \sigma^2)}{%
       E[lambda_i|beta,b_i,sigma^2]=phi^(-1)((X_i*beta+W_i*b_i)+0.5*sigma^2)}
     }
 }
@@ -270,10 +266,10 @@ dev.off()
 summary(model$mcmc)
 
 # Predictive posterior mean for each observation
-model$lambda.pred
+model$log_lambda_pred
 
 # Predicted-Observed
-plot(Data$lambda,model$lambda.pred)
+plot(log(Data$lambda),model$log_lambda_pred)
 abline(a=0,b=1)
 
 ## #Not run
@@ -282,7 +278,7 @@ abline(a=0,b=1)
 ## library(lme4)
 ## model.lme4 <- lmer(Y~X1+X2+(1+X1+X2|species),data=Data,family="poisson")
 ## summary(model.lme4)
-## plot(fitted(model.lme4),model$lambda.pred,main="entry_recruitment_gibbs/lme4")
+## plot(log(fitted(model.lme4)),model$log_lambda_pred),main="entry_recruitment_gibbs/lme4")
 ## abline(a=0,b=1)
 }
 }
