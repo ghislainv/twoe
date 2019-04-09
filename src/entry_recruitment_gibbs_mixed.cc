@@ -182,12 +182,12 @@ extern "C"{
 	    log_lambdak_run[k] = Matrix<double>(nobsk[k],1);
 	    for (int m=0; m<nobsk[k]; m++) {
 		log_lambdak_run[k](m)=log_lambda_pred[posk_arr[k][m]];
-		log_lambda_pred[posk_arr[k][m]]=0; // We reinitialize lambda_pred to zero to compute mean of MCMC
+		log_lambda_pred[posk_arr[k][m]]=0.0; // We reinitialize lambda_pred to zero to compute mean of MCMC
 	    }
 	}
 	double Deviance_run=Deviance[0];
 
-        ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 	// Proposal variance and acceptance for adaptive sampling //
 	double *sigmap = new double[NOBS];
 	double *nA = new double[NOBS];
@@ -217,8 +217,8 @@ extern "C"{
 
 	for (int g=0;g<NGIBBS;g++) {
 
-            ////////////////////////////////////////////////
-            // vector log_lambda :: Metropolis algorithm // 
+        ////////////////////////////////////////////////
+        // vector log_lambda :: Metropolis algorithm // 
 
 	    for (int k=0; k<NGROUP; k++) {
 
@@ -368,9 +368,8 @@ extern "C"{
 	    	Deviance[isamp-1]=Deviance_run;
 	    	for (int k=0;k<NGROUP;k++){
 	    	    for (int m=0; m<nobsk[k]; m++) {
-	    		int w=posk_arr[k][m];
-			Matrix<double> log_lambda_hat=Xk_arr[k](m,_)*beta_run+Wk_arr[k](m,_)*bk_run[k];
-	    		log_lambda_pred[w]+=log_lambda_hat(0)/NSAMP; // We compute the mean of NSAMP values
+	    			int w=posk_arr[k][m];
+	    			log_lambda_pred[w]+=log_lambdak_run[k](m)/NSAMP; // We compute the mean of NSAMP values
 	    	    }
 	    	}
 	    }

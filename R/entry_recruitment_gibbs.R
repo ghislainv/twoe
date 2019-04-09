@@ -142,9 +142,13 @@ entry_recruitment_gibbs <- function (fixed, random, group, interval=1, area=1, d
 
     #= Transform Sample list in an MCMC object
     MCMC <- mcmc(Matrix,start=nburn+1,end=ngibbs,thin=nthin)
-  
+    
+    #= log_lambda_pred
+    log_lambda_pred <- Sample[[17]]
+
     #= Output
-    return (list(mcmc=MCMC, log_lambda_pred=Sample[[17]]))
+    return (list(mcmc=MCMC, log_lambda_pred=log_lambda_pred))
+    
   }
 
   #= Mixed effects model
@@ -271,9 +275,12 @@ entry_recruitment_gibbs <- function (fixed, random, group, interval=1, area=1, d
 
     #= Transform Sample list in an MCMC object
     MCMC <- mcmc(Matrix,start=nburn+1,end=ngibbs,thin=nthin)
-  
+    
+    #= log_lambda_pred
+    log_lambda_pred <- Sample[[25]]
+
     #= Output
-    return (list(mcmc=MCMC, log_lambda_pred=Sample[[25]]))
+    return (list(mcmc=MCMC, log_lambda_pred=log_lambda_pred))
   }
 }
 

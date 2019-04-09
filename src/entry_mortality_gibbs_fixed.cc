@@ -64,7 +64,7 @@ extern "C"{
 	const double *s1_V, const double *s2_V,
 	// Diagnostic
 	double *Deviance,
-	double *logit_theta_pred, // Annual mortality rate
+	double *logit_theta_pred, // logit(Annual mortality rate)
 	// Seeds
 	const int *seed,
 	// Verbose
@@ -78,7 +78,7 @@ extern "C"{
 	//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	// Defining and initializing objects
 	
-        ///////////////////////////
+    ///////////////////////////
 	// Redefining constants //
 	const int NGIBBS=ngibbs[0];
 	const int NTHIN=nthin[0];
@@ -119,7 +119,7 @@ extern "C"{
 	}
 	double Deviance_run=Deviance[0];
 
-        ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 	// Proposal variance and acceptance for adaptive sampling //
 	double *sigmap = new double[NOBS];
 	double *nA = new double[NOBS];
@@ -149,59 +149,59 @@ extern "C"{
 
 	for (int g=0;g<NGIBBS;g++) {
 
-            ////////////////////////////////////////////////
-            // vector logit_theta : Metropolis algorithm // 
+        ////////////////////////////////////////////////
+        // vector logit_theta : Metropolis algorithm // 
 
-	    for (int i=0; i<NOBS; i++) {
-
-		// Mean of the prior
-		Matrix<double> logit_theta_hat=Xi_arr[i]*beta_run;
-
-		// Proposal
-		double logit_theta_prop=myrng.rnorm(logit_thetai_run[i](0),sigmap[i]);
-		
-		// theta_prim
-		double theta_prim_prop=1-pow(1-invlogit(logit_theta_prop),Int_vect[i]);
-		double theta_prim_run=1-pow(1-invlogit(logit_thetai_run[i](0)),Int_vect[i]);
-
-		// Ratio of probabilities
-		double p_prop=log(dbinom(Y_vect[i],1,theta_prim_prop))+
-		    log(dnorm(logit_theta_prop,logit_theta_hat(0),sqrt(V_run)));
-
-		double p_now=log(dbinom(Y_vect[i],1,theta_prim_run))+
-		    log(dnorm(logit_thetai_run[i](0),logit_theta_hat(0),sqrt(V_run)));
-		    
-		double r=exp(p_prop-p_now); // ratio
-		double z=myrng.runif();
-		
-		// Actualization
-		if (z < r) {
-		    logit_thetai_run[i](0)=logit_theta_prop;
-		    nA[i]++;
+        for (int i=0; i<NOBS; i++) {
+        	
+        	// Mean of the prior
+        	Matrix<double> logit_theta_hat=Xi_arr[i]*beta_run;
+        	
+        	// Proposal
+        	double logit_theta_prop=myrng.rnorm(logit_thetai_run[i](0),sigmap[i]);
+        	
+        	// theta_prim
+        	double theta_prim_prop=1-pow(1-invlogit(logit_theta_prop),Int_vect[i]);
+        	double theta_prim_run=1-pow(1-invlogit(logit_thetai_run[i](0)),Int_vect[i]);
+        	
+        	// Ratio of probabilities
+        	double p_prop=log(dbinom(Y_vect[i],1,theta_prim_prop))+
+        		log(dnorm(logit_theta_prop,logit_theta_hat(0),sqrt(V_run)));
+        	
+        	double p_now=log(dbinom(Y_vect[i],1,theta_prim_run))+
+        		log(dnorm(logit_thetai_run[i](0),logit_theta_hat(0),sqrt(V_run)));
+        	
+        	double r=exp(p_prop-p_now); // ratio
+        	double z=myrng.runif();
+        	
+        	// Actualization
+        	if (z < r) {
+        		logit_thetai_run[i](0)=logit_theta_prop;
+        		nA[i]++;
+        	}
+        }
+        
+        
+        //////////////////////////////////
+        // vector beta: Gibbs algorithm //
+        
+        // invVi, sum_V and sum_v
+        Matrix<double> sum_V(NP,NP);
+		Matrix<double> sum_v(NP,1);
+		for (int i=0; i<NOBS; i++) {
+			sum_V += crossprod(Xi_arr[i]);
+			sum_v += t(Xi_arr[i])*logit_thetai_run[i];
 		}
-	    }
-
-
-	    //////////////////////////////////
-	    // vector beta: Gibbs algorithm //
-
-	    // invVi, sum_V and sum_v
-	    Matrix<double> sum_V(NP,NP);
-	    Matrix<double> sum_v(NP,1);
-	    for (int i=0; i<NOBS; i++) {
-	    	sum_V += crossprod(Xi_arr[i]);
-	    	sum_v += t(Xi_arr[i])*logit_thetai_run[i];
-	    }
-
-	    // big_V
-	    Matrix<double> big_V=invpd(invpd(Vbeta)+sum_V/V_run);
-	    
-	    // small_v
-	    Matrix<double> small_v=invpd(Vbeta)*mubeta+sum_v/V_run;
-
-	    // Draw in the posterior distribution
-	    beta_run=myrng.rmvnorm(big_V*small_v,big_V);
-
+		
+		// big_V
+		Matrix<double> big_V=invpd(invpd(Vbeta)+sum_V/V_run);
+		
+		// small_v
+		Matrix<double> small_v=invpd(Vbeta)*mubeta+sum_v/V_run;
+		
+		// Draw in the posterior distribution
+		beta_run=myrng.rmvnorm(big_V*small_v,big_V);
+		
 
 	    ////////////////
 	    // variance V //
@@ -218,7 +218,7 @@ extern "C"{
 
 	    // Draw in the posterior distribution
 	    if (FixOD[0]==1) {
-		V_run=V[0];
+			V_run=V[0];
 	    }
 	    else {
 	    	V_run=1/myrng.rgamma(S1,S2);
@@ -231,12 +231,12 @@ extern "C"{
 	    // logLikelihood
 	    double logLk=0;
 	    for (int i=0; i<NOBS; i++) {
-		// theta_prim_run
-		double theta_prim_run=1-pow(1-invlogit(logit_thetai_run[i](0)),Int_vect[i]);
-		// L
-		logLk+=log(dbinom(Y_vect[i],1,theta_prim_run));
+	    	// theta_prim_run
+	    	double theta_prim_run=1-pow(1-invlogit(logit_thetai_run[i](0)),Int_vect[i]);
+	    	// L
+	    	logLk+=log(dbinom(Y_vect[i],1,theta_prim_run));
 	    }
-
+	    
 	    // Deviance
 	    Deviance_run=-2*logLk;
 
@@ -244,16 +244,15 @@ extern "C"{
 	    //////////////////////////////////////////////////
 	    // Output
 	    if(((g+1)>NBURN) && (((g+1)%(NTHIN))==0)){
-		int isamp=((g+1)-NBURN)/(NTHIN);
-		for (int p=0; p<NP; p++) {
-		    beta_vect[p*NSAMP+(isamp-1)]=beta_run(p);
-		}
-		V[isamp-1]=V_run;
-		Deviance[isamp-1]=Deviance_run;
-		for (int i=0; i<NOBS; i++) {
-		    Matrix<double> logit_theta_hat=Xi_arr[i]*beta_run;
-		    logit_theta_pred[i]+=logit_theta_hat(0)/NSAMP; // We compute the mean of NSAMP values
-		}
+	    	int isamp=((g+1)-NBURN)/(NTHIN);
+	    	for (int p=0; p<NP; p++) {
+	    		beta_vect[p*NSAMP+(isamp-1)]=beta_run(p);
+	    	}
+	    	V[isamp-1]=V_run;
+	    	Deviance[isamp-1]=Deviance_run;
+	    	for (int i=0; i<NOBS; i++) {
+	    		logit_theta_pred[i]+=logit_thetai_run[i](0)/NSAMP; // We compute the mean of NSAMP values
+	    	}
 	    }
 	    
 

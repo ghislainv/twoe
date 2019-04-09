@@ -142,14 +142,11 @@ entry_mortality_gibbs <- function (fixed, random, group, interval=1, data, burni
     #= Transform Sample list in an MCMC object
     MCMC <- mcmc(Matrix,start=nburn+1,end=ngibbs,thin=nthin)
 
-    #= theta.pred
-    V.mean <- mean(Sample[[10]])
-    C <- (16*sqrt(3)/(15*pi))^2
-    logit.theta.pred <- Sample[[16]]
-    theta.pred <-  inv_logit(logit.theta.pred/sqrt(1+C*V.mean))
-  
+    #= logit_theta_pred
+    logit_theta_pred <- Sample[[16]]
+
     #= Output
-    return (list(mcmc=MCMC,theta.pred=theta.pred))
+    return (list(mcmc=MCMC, logit_theta_pred=logit_theta_pred))
   }
 
   #= Mixed effects model
@@ -275,14 +272,11 @@ entry_mortality_gibbs <- function (fixed, random, group, interval=1, data, burni
     #= Transform Sample list in an MCMC object
     MCMC <- mcmc(Matrix,start=nburn+1,end=ngibbs,thin=nthin)
 
-    #= theta.pred
-    V.mean <- mean(Sample[[16]])
-    C <- (16*sqrt(3)/(15*pi))^2
-    logit.theta.pred <- Sample[[24]]
-    theta.pred <-  inv_logit(logit.theta.pred/sqrt(1+C*V.mean))
-  
+    #= theta_pred
+    logit_theta_pred <- Sample[[24]]
+
     #= Output
-    return (list(mcmc=MCMC,theta.pred=theta.pred))
+    return (list(mcmc=MCMC, logit_theta_pred=logit_theta_pred))
   }
 }
 

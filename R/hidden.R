@@ -308,7 +308,7 @@ form.sigma2.start.hmodels <- function (fixed,data,sigma2.start,family) {
     sigma2.start <- var(residuals(glm(fixed, family=family, data=data)))
   }
   else {
-    sigma2.start <- as.integer(sigma2.start[1])
+    sigma2.start <- as.numeric(sigma2.start[1])
   }
   if (sigma2.start<=0) {
     cat("Error: Starting value for sigma2 negative.\n")

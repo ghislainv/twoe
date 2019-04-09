@@ -75,7 +75,7 @@ extern "C"{
 	const double *s1_V, const double *s2_V,
 	// Diagnostic
 	double *Deviance,
-	double *logit_theta_pred, // Annual mortality rate
+	double *logit_theta_pred, // logit(Annual mortality rate)
 	// Seeds
 	const int *seed,
 	// Verbose
@@ -369,9 +369,8 @@ extern "C"{
 	    	Deviance[isamp-1]=Deviance_run;
 	    	for (int k=0;k<NGROUP;k++){
 	    	    for (int m=0; m<nobsk[k]; m++) {
-	    		int w=posk_arr[k][m];
-			Matrix<double> logit_theta_hat=Xk_arr[k](m,_)*beta_run+Wk_arr[k](m,_)*bk_run[k];
-	    		logit_theta_pred[w]+=logit_theta_hat(0)/NSAMP; // We compute the mean of NSAMP values
+	    			int w=posk_arr[k][m];
+	    	    	logit_theta_pred[w]+=logit_thetak_run[k](m)/NSAMP; // We compute the mean of NSAMP values	
 	    	    }
 	    	}
 	    }

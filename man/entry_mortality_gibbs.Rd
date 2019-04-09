@@ -170,14 +170,9 @@ delta=0.001, FixOD=0, ...)}
     \eqn{D=-2\log(\prod_i P(y_i|\theta_i))}{%
       D=-2log(prod_i P(y_i|theta_i))}, is also provided.}
   
-  \item{theta.pred}{Predictive posterior mean for the inverse-logit of
-    the latent variables. The approximation of Diggle et
-    al. (2004) is used to marginalized with respect to over-dispersion terms:
-    \deqn{E[\theta_i|\beta,b_i,\sigma^2]=\phi^{-1}((X_i
-      \beta+W_i b_i)/\sqrt{(16\sqrt{3}/15\pi)^2\sigma^2+1})}{%
-      E[theta_i|beta,b_i,sigma^2]=phi^(-1)((X_i*beta+W_i*b_i) /%
-      sqrt((16*sqrt(3)/15*pi)^2*sigma^2+1))}
-    }
+  \item{logit_theta_pred}{Predictive posterior mean for the 
+  latent variables \eqn{\phi(\theta_i)}{phi(theta_i)}.}
+  
 }
 
 \references{
@@ -196,9 +191,6 @@ delta=0.001, FixOD=0, ...)}
   \emph{Output Analysis and Diagnostics for MCMC (CODA)}.
   \url{http://www-fis.iarc.fr/coda/}.
 
-  Diggle P., Heagerty P., Liang K., and Zeger S. 2004. ``Analysis of Longitudinal Data.''
-  \emph{Oxford University Press}, 2sd Edition.
-
 }
 
 \author{
@@ -216,12 +208,7 @@ delta=0.001, FixOD=0, ...)}
 # Hierarchical Binomial Linear Regression
 #========================================
 
-#==  inv_logit function
- inv_logit <- function(x, min=0, max=1) {
-    p <- exp(x)/(1+exp(x))
-    p <- ifelse( is.na(p) & !is.na(x), 1, p ) # fix problems with +Inf
-    return(p*(max-min)+min)
-}
+library(twoe)
 
 #== Generating data
 
@@ -243,27 +230,33 @@ beta.target <- matrix(c(0.3,0.2,0.1),ncol=1)
 Vb.target <- c(0.5,0.05,0.05)
 # b
 b.target <- cbind(rnorm(nspecies,mean=0,sd=sqrt(Vb.target[1])),
-                  rnorm(nspecies,mean=0,sd=sqrt(Vb.target[2])),
-                  rnorm(nspecies,mean=0,sd=sqrt(Vb.target[3])))
+				  rnorm(nspecies,mean=0,sd=sqrt(Vb.target[2])),
+				  rnorm(nspecies,mean=0,sd=sqrt(Vb.target[3])))
 
-# Response
-theta <- vector()
-Y <- vector()
-for (n in 1:nobs) {
-  theta[n] <-  inv_logit(X[n,]\%*\%beta.target+W[n,]\%*\%b.target[species[n],])
-  Y[n] <- rbinom(n=1,size=1,prob=theta[n])
-}
+# V 
+V.target <- 0.5
 
-# Data-set
-Data <- as.data.frame(cbind(Y,theta,X1,X2,species))
-plot(Data$X1,Data$theta)
+# Response variable
+e <- rnorm(nobs, 0, sd=sqrt(V.target))
+logit_theta = X %*% beta.target + rowSums(W*b.target[IdentGroup,]) + e
+theta_prim <- twoe::inv_logit(logit_theta)*Int_vect*SCell_vect
+Y <- rbinom(nobs,size=1,theta_prim) 
+
+# Data-set 
+Data <- as.data.frame(cbind(Y,logit_theta,X1,X2,IdentGroup)) 
+# Plot data
+library(ggplot2)
+ggplot(Data, aes(X1,logit_theta,color=as.factor(IdentGroup))) +
+	geom_point()
 
 #== Call to entry_mortality_gibbs
-model <- entry_mortality_gibbs(fixed=Y~X1+X2, random=~X1+X2, group="species",
-              interval=1, data=Data, burnin=5000, mcmc=1000, thin=1,verbose=1,
-              seed=NA, beta.start=0, sigma2.start=1,
-              Vb.start=1, mubeta=0, Vbeta=1.0E6,
-              r=3, R=diag(c(1,0.1,0.1)), nu=0.001, delta=0.001, FixOD=1)
+model <- entry_mortality_gibbs(
+	fixed=Y~X1+X2, random=~X1+X2,
+	group="IdentGroup",
+	interval=1, data=Data, burnin=5000, mcmc=1000, thin=1,verbose=1,
+	seed=NA, beta.start=0, sigma2.start=0.5,
+	Vb.start=1, mubeta=0, Vbeta=1.0E6,
+	r=3, R=diag(c(1,0.1,0.1)), nu=0.001, delta=0.001, FixOD=1)
 
 #== MCMC analysis
 
@@ -275,21 +268,14 @@ dev.off()
 # Summary
 summary(model$mcmc)
 
-# Predictive posterior mean for each observation
-model$theta.pred
-
 # Predicted-Observed
-plot(Data$theta,model$theta.pred)
-abline(a=0,b=1)
+plot(logit_theta, model$logit_theta_pred)
+abline(a=0, b=1, col="red")
+plot(twoe::inv_logit(logit_theta),
+	 twoe::inv_logit(model$logit_theta_pred))
+abline(a=0, b=1, col="red")
 
-## #Not run
-## #You can also compare with lme4 results
-## #== lme4 resolution
-## library(lme4)
-## model.lme4 <- lmer(Y~X1+X2+(1+X1+X2|species),data=Data,family="binomial")
-## summary(model.lme4)
-## plot(fitted(model.lme4),model$theta.pred,main="entry_mortality_gibbs/lme4")
-## abline(a=0,b=1)
+# End
 }
 }
 

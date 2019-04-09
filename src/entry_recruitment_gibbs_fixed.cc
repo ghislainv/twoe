@@ -243,18 +243,16 @@ extern "C"{
 	    //////////////////////////////////////////////////
 	    // Output
 	    if(((g+1)>NBURN) && (((g+1)%(NTHIN))==0)) {
-		int isamp=((g+1)-NBURN)/(NTHIN);
-		for (int p=0; p<NP; p++) {
-		    beta_vect[p*NSAMP+(isamp-1)]=beta_run(p);
-		}
-		V[isamp-1]=V_run;
-		Deviance[isamp-1]=Deviance_run;
+	    	int isamp=((g+1)-NBURN)/(NTHIN);
+	    	for (int p=0; p<NP; p++) {
+	    		beta_vect[p*NSAMP+(isamp-1)]=beta_run(p);
+	    	}
+	    	V[isamp-1]=V_run;
+	    	Deviance[isamp-1]=Deviance_run;
 	    	for (int i=0;i<NOBS;i++){
-		    Matrix<double> log_lambda_hat=Xi_arr[i]*beta_run;
-		    log_lambda_pred[i]+=log_lambda_hat(0)/NSAMP; // We compute the mean of NSAMP values
+	    		log_lambda_pred[i]+=log_lambdai_run[i](0)/NSAMP; // We compute the mean of NSAMP values
 	    	}
 	    }
-	    
 
 	    ///////////////////////////////////////////////////////
 	    // Adaptive sampling (on the burnin period)
